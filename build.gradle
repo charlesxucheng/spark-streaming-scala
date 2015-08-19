@@ -1,0 +1,32 @@
+apply plugin: 'scala'
+apply plugin: 'eclipse'
+
+sourceSets {
+	main {
+        scala {
+            srcDir 'src'
+        }
+	}
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.10.5'
+    compile 'org.apache.spark:spark-core_2.10:1.4.1'
+	compile 'org.apache.spark:spark-streaming_2.10:1.4.1'
+//	compile files('lib/gic-common.jar', 'lib/log4j-1-2-15-with-extras.jar', 'lib/ojdbc5.jar', 'lib/weblogic.jar')
+} 
+repositories {
+//    maven {
+//        url 'http://repo.spring.io/milestone'
+//		url 'http://repo.spring.io/release'
+//    }
+	mavenCentral()
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.6'
+}
+
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.useAnt = false
+}
