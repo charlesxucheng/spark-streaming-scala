@@ -54,6 +54,7 @@ object StreamingApp2 {
       .set("spark.driver.host", s"$driverHost")
       .set("spark.akka.logLifecycleEvents", "true")
     val ssc = new StreamingContext(conf, Seconds(1))
+    ssc.checkpoint(".")
     val actorNameMv = "helloerMv"
     val actorStreamMv: ReceiverInputDStream[(String, BigDecimal)] = ssc.actorStream[(String, BigDecimal)](Props[HelloerMv], actorNameMv)
     //    actorStreamMv.print()
@@ -70,14 +71,14 @@ object StreamingApp2 {
         case None => (BigDecimal(0), BigDecimal(0))
       }
       val newState = newValuePairs match {
-        case x :: xs =>
-          newValuePairs.last match {
+        case xs :+ x =>
+          x match {
             case (Some(v), None) => Some(v, currentState._2)
             case (None, Some(v)) => Some(currentState._1, v)
             case (None, None) => state
             case (Some(v1), Some(v2)) => Some(v1, v2)
           }
-        case Nil => state
+        case _ => state
       }
       newState
     }
@@ -93,10 +94,9 @@ object StreamingApp2 {
     }
 
     val actorStreamSum = new PairDStreamFunctions(actorStreamLast).updateStateByKey[(BigDecimal, BigDecimal)](updateFunc _)
-    //cogroup(actorStreamAdj)
 
     //actorStreamLast.print()
-    actorStreamSum.print()
+    actorStreamSum.map(x => (x._1, x._2._1 + x._2._2)).print()
 
     ssc.start()
     Thread.sleep(3 * 1000) // wish I knew a better way to handle the asynchrony
@@ -116,6 +116,8 @@ object StreamingApp2 {
     helloerMv ! ("C123", BigDecimal(120))
 
     helloerAdj ! ("C123", BigDecimal(20))
+
+    helloerAdj ! ("C123", BigDecimal(-10))
 
     val stopSparkContext = true
     val stopGracefully = true
