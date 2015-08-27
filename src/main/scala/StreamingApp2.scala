@@ -83,16 +83,6 @@ object StreamingApp2 {
       newState
     }
 
-    def updateFunc2(newValuePairs: Seq[(Option[BigDecimal], Option[BigDecimal])], state: (Option[BigDecimal], Option[BigDecimal])): (Option[BigDecimal], Option[BigDecimal]) = {
-      val newState = newValuePairs.last match {
-        case (Some(v), None) => (Some(v), state._2)
-        case (None, Some(v)) => (state._1, Some(v))
-        case (None, None) => state
-        case (Some(v1), Some(v2)) => (Some(v1), Some(v2))
-      }
-      newState
-    }
-
     val actorStreamSum = new PairDStreamFunctions(actorStreamLast).updateStateByKey[(BigDecimal, BigDecimal)](updateFunc _)
 
     //actorStreamLast.print()
