@@ -25,3 +25,4 @@ build/tmp/jar/MANIFEST.MF
 build/tmp/scala/compilerAnalysis/compileScala.analysis
 build/tmp/scala/compilerAnalysis/compileScala.analysis.relations
 project/.sbtserver.lock
+.settings/org.scala-ide.sdt.core.prefs
